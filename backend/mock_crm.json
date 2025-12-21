@@ -1,0 +1,12 @@
+[
+  {"id":1,"name":"Rahul Sharma","phone":"9876543210","pan":"ABCDE1234F","kyc":true,"mock_score":780},
+  {"id":2,"name":"Ankit Verma","phone":"9123456789","pan":"PQRSX2345Z","kyc":true,"mock_score":720},
+  {"id":3,"name":"Neha Gupta","phone":"9988776655","pan":"LMNOP5432Q","kyc":true,"mock_score":680},
+  {"id":4,"name":"Rohit Jain","phone":"9090909090","pan":"ZXCVB9876K","kyc":true,"mock_score":640},
+  {"id":5,"name":"Pooja Mehta","phone":"8899776655","pan":"ASDFG1122L","kyc":true,"mock_score":400},
+  {"id":6,"name":"Amit Singh","phone":"9345612789","pan":"QWERT6789M","kyc":true,"mock_score":590},
+  {"id":7,"name":"Karan Patel","phone":"8765432109","pan":"BNMVC4567R","kyc":true,"mock_score":700},
+  {"id":8,"name":"Simran Kaur","phone":"9876501234","pan":"PLMKO9988T","kyc":true,"mock_score":760},
+  {"id":9,"name":"Vikas Yadav","phone":"9123098765","pan":"LKJHG3344S","kyc":true,"mock_score":660},
+  {"id":10,"name":"Ritu Malhotra","phone":"9000011111","pan":"MNBVC7788P","kyc":true,"mock_score":740}
+]
