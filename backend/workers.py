@@ -6,10 +6,22 @@ from .utils import (
     generate_sanction_pdf
 )
 
+import os
+import json
+import google.generativeai as genai
 
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-with open("backend/mock_crm.json") as f:
+# import os
+# import json
+
+BASE_DIR = os.path.dirname(__file__)
+CRM_PATH = os.path.join(BASE_DIR, "mock_crm.json")
+
+with open(CRM_PATH) as f:
     CRM = json.load(f)
+
 
 # ---------------- SALES AGENT ----------------
 import random
@@ -124,30 +136,95 @@ APPROVAL_MESSAGES = [
     )
 ]
 
+# async def sales_agent(session: dict):
+#     last_asked = session.get("last_asked_field")
+
+#     # ✅ Acknowledge ONLY the last asked field
+#     acknowledgement = ""
+#     if last_asked and session.get(last_asked):
+#         acknowledgement = random.choice(ACK_MESSAGES[last_asked])
+
+#     # ✅ Find next missing field
+#     for field in FIELD_ORDER:
+#         if not session.get(field):
+#             session["last_asked_field"] = field
+
+#             ask = random.choice(ASK_MESSAGES[field])
+
+#             if acknowledgement:
+#                 return {
+#                     "reply": f"{acknowledgement}\n\n{ask}"
+#                 }
+
+#             return {"reply": ask}
+
+#     # Nothing missing
+#     return {"reply": None}
+
 async def sales_agent(session: dict):
-    last_asked = session.get("last_asked_field")
+    FIELD_ORDER = [
+        "loan_amount",
+        "tenure_months",
+        "purpose",
+        "salary",
+        "salary_slip_uploaded",
+        "phone",
+        "pan"
+    ]
 
-    # ✅ Acknowledge ONLY the last asked field
-    acknowledgement = ""
-    if last_asked and session.get(last_asked):
-        acknowledgement = random.choice(ACK_MESSAGES[last_asked])
+    FIELD_LABELS = {
+        "loan_amount": "loan amount",
+        "tenure_months": "loan tenure",
+        "purpose": "loan purpose",
+        "salary": "monthly salary",
+        "salary_slip_uploaded": "salary slip",
+        "phone": "phone number",
+        "pan": "PAN number"
+    }
 
-    # ✅ Find next missing field
+    # Step 1: find next missing field (ORDERED)
+    next_field = None
     for field in FIELD_ORDER:
         if not session.get(field):
-            session["last_asked_field"] = field
+            next_field = field
+            break
 
-            ask = random.choice(ASK_MESSAGES[field])
+    # Nothing missing → move to next agent
+    if not next_field:
+        return {"reply": None}
 
-            if acknowledgement:
-                return {
-                    "reply": f"{acknowledgement}\n\n{ask}"
-                }
+    last_asked = session.get("last_asked_field")
 
-            return {"reply": ask}
+    # Step 2: build acknowledgement
+    acknowledgement = ""
+    if last_asked and session.get(last_asked):
+        acknowledgement = f"Thanks for sharing your {FIELD_LABELS[last_asked]}. "
 
-    # Nothing missing
-    return {"reply": None}
+    # Step 3: LLM prompt (VERY CONSTRAINED)
+    prompt = f"""
+You are a loan sales executive.
+
+Ask ONLY ONE question.
+Ask specifically for: {FIELD_LABELS[next_field]}.
+
+Rules:
+- Be polite and concise
+- Do not ask multiple questions
+- Do not mention approval, rejection, or eligibility
+- Do not repeat previously asked questions
+"""
+
+    response = model.generate_content(prompt)
+
+    # Step 4: persist state
+    session["last_asked_field"] = next_field
+
+    reply = response.text.strip()
+
+    if acknowledgement:
+        reply = acknowledgement + "\n\n" + reply
+
+    return {"reply": reply}
 
 # ---------------- KYC AGENT ----------------
 async def verification_agent(session):
@@ -178,25 +255,22 @@ INVALID_SLIP_MESSAGES = [
 ]
 
 async def salary_slip_agent(session):
-    # Already verified → continue
     if session.get("salary_slip_verified"):
         return {"verified": True}
 
-    # Explicit invalid slip case
-    if session.get("salary_slip_status") == "invalid":
+    if session.get("salary_slip_invalid"):
         return {
             "verified": False,
             "final_reject": True,
             "reason": random.choice(INVALID_SLIP_MESSAGES)
         }
 
-    # Ask for upload
-    session["last_asked_field"] = "salary"
     return {
         "verified": False,
         "final_reject": False,
         "reason": "I’ll need your salary slip for verification. Kindly upload it."
     }
+
 
 
 

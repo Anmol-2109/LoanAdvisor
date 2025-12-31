@@ -3,8 +3,12 @@ import requests
 import uuid
 import time
 
-API_CHAT = "http://127.0.0.1:8000/api/message"
-API_UPLOAD = "http://127.0.0.1:8000/api/upload-salary-slip"
+import os
+
+API_BASE = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+API_CHAT = f"{API_BASE}/api/message"
+API_UPLOAD = f"{API_BASE}/api/upload-salary-slip"
+
 
 st.set_page_config(page_title="FinBot", page_icon="💬", layout="centered")
 

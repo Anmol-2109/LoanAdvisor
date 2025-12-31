@@ -119,12 +119,13 @@ async def upload_salary_slip(session_id: str):
 
     session["salary_slip_uploaded"] = True
     session["salary_slip_verified"] = False
-    session["salary_slip_invalid"] = True   # 🔴 KEY FLAG
+    session["salary_slip_invalid"] = True   # MATCH AGENT
 
     return {
         "status": "invalid",
         "reason": "Salary slip could not be verified"
     }
+
 
 
 @app.get("/api/pdf/{file}")
