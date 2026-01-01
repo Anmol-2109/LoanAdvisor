@@ -1,5 +1,5 @@
 import json
-from .utils import (
+from utils import (
     calculate_final_interest_rate,
     compute_emi,
     calculate_foir,
@@ -8,11 +8,9 @@ from .utils import (
 
 import os
 import json
-import google.generativeai as genai
-
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
-
+from google import genai
+client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+model="gemini-2.0-flash"
 # import os
 # import json
 
@@ -214,7 +212,10 @@ Rules:
 - Do not repeat previously asked questions
 """
 
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+     model="gemini-2.0-flash",
+    contents=prompt
+)
 
     # Step 4: persist state
     session["last_asked_field"] = next_field

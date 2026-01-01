@@ -1,17 +1,38 @@
+from dotenv import load_dotenv
+load_dotenv()
+
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uuid, os
+print("GOOGLE_API_KEY loaded:", bool(os.getenv("GOOGLE_API_KEY")))
 
+# from google import genai
+# import os
+
+
+# # Get the key from the environment variable you verified is loaded
+# api_key = os.getenv("GOOGLE_API_KEY")
+
+# if not api_key:
+#     raise ValueError("GOOGLE_API_KEY not found in environment variables")
+
+# client = genai.Client(api_key=api_key)
+
+# # Print all available models
+# # Change supported_methods to supported_actions
+# for model in client.models.list():
+#     print(f"Name: {model.name} | Actions: {model.supported_actions}")
 import random
-from .workers import APPROVAL_MESSAGES
+from workers import APPROVAL_MESSAGES
 import asyncio
 
-from .workers import salary_slip_agent
+from workers import salary_slip_agent
 
 
-from .intent_llm import extract_intent
-from .workers import (
+from intent_llm import extract_intent
+from workers import (
     sales_agent,
     verification_agent,
     underwriting_agent,

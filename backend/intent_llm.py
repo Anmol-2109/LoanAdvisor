@@ -52,13 +52,14 @@
 
 #     return result
 
+# 
+
+
 import os
 import json
-import google.generativeai as genai
+from google import genai
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 INTENT_SCHEMA = {
     "loan_amount": "number or null",
@@ -83,11 +84,14 @@ User message:
 {text}
 """
 
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
+
     raw = response.text.strip()
 
     try:
         return json.loads(raw)
     except Exception:
-        # Safe fallback
         return {k: None for k in INTENT_SCHEMA}
